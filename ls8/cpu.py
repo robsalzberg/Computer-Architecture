@@ -30,6 +30,22 @@ class CPU:
         # self.reg[7] Reserved: Stack Pointer
         # self.reg[8] Unassigned
 
+    def ram_read(self, address):
+        # MAR stores the address of what to read
+        self.MAR = address
+        # MDR stores the data read
+        self.MDR = self.ram[self.MAR]
+
+        return self.MDR
+
+    def ram_write(self, value, address):
+        # MAR stores the address of where to write
+        self.MAR = address
+        # MDR stores the value to write
+        self.MDR = value
+        # Set that data to the address in RAM
+        self.ram[self.MAR] = self.MDR
+
     def load(self):
         """Load a program into memory."""
 
