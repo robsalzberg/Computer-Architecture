@@ -7,7 +7,28 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+            # Each index is a byte
+        # RAM stores 256 bytes
+        self.ram = [0] * 256
+
+        # Each index in reg is a register
+        self.reg = [0] * 8
+
+        # Store the Program Counter
+        self.PC = self.reg[0]
+        # Store the Instruction Register
+        self.IR = self.reg[1]
+        # Store the Memory Address Register
+        self.MAR = self.reg[2]
+        # Store the Memory Data Register
+        self.MDR = self.reg[3]
+        # Store the Flags
+        self.FL = self.reg[4]
+
+        # self.reg[5] Reserved: Interrupt Mask
+        # self.reg[6] Reserved: Interrupt Status
+        # self.reg[7] Reserved: Stack Pointer
+        # self.reg[8] Unassigned
 
     def load(self):
         """Load a program into memory."""
