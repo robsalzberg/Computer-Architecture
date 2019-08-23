@@ -2,6 +2,10 @@
 
 import sys
 
+HLT = 0b00000001
+LDI = 0b10000010
+PRN = 0b01000111
+
 class CPU:
     """Main CPU class."""
 
@@ -17,34 +21,27 @@ class CPU:
         # Store the Program Counter
         self.PC = self.reg[0]
         # Store the Instruction Register
-        self.IR = self.reg[1]
+        # self.IR = self.reg[1]
         # Store the Memory Address Register
-        self.MAR = self.reg[2]
+        # self.MAR = self.reg[2]
         # Store the Memory Data Register
-        self.MDR = self.reg[3]
+        # self.MDR = self.reg[3]
         # Store the Flags
-        self.FL = self.reg[4]
+        # self.FL = self.reg[4]
 
         # self.reg[5] Reserved: Interrupt Mask
         # self.reg[6] Reserved: Interrupt Status
         # self.reg[7] Reserved: Stack Pointer
         # self.reg[8] Unassigned
 
-    def ram_read(self, address):
-        # MAR stores the address of what to read
-        self.MAR = address
-        # MDR stores the data read
-        self.MDR = self.ram[self.MAR]
+    def __repr__(self):
+        return f'RAM: {self.ram} \n {self.reg}'
 
-        return self.MDR
+    def ram_read(self, address):
+        return self.ram[address]
 
     def ram_write(self, value, address):
-        # MAR stores the address of where to write
-        self.MAR = address
-        # MDR stores the value to write
-        self.MDR = value
-        # Set that data to the address in RAM
-        self.ram[self.MAR] = self.MDR
+        self.ram[address] = value
 
     def load(self):
         """Load a program into memory."""
@@ -67,6 +64,7 @@ class CPU:
             self.ram[address] = instruction
             address += 1
 
+        print(self.ram)
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -99,4 +97,39 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        operand_a = self.ram[self.PC + 1]
+        operand_b = self.ram[self.PC + 2]
+
+        print(f"Operand A: {operand_a} Operand B: {operand_b}")
+
+        running = True
+
+        while running:
+            IR = self.ram[self.PC]
+            print(f"Current IR: {IR}, current PC: {self.PC}")
+
+            if IR == HLT:
+                # halt the program
+                running = False
+
+            elif IR == LDI:
+                # sets register to a value
+                self.reg[operand_a] = operand_b
+                self.PC += 2
+
+            elif IR == PRN:
+                # print the value at a register
+                print(self.reg[operand_a])
+                self.PC += 1
+
+            else:
+                print(f"Unknown command: {IR}")
+                sys.exit(1)
+            
+            self.PC += 1
+
+
+test = CPU()
+print(test.load())
+print(f"\n")
+print(test.run())
