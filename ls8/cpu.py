@@ -35,7 +35,7 @@ class CPU:
         # self.reg[8] Unassigned
 
     def __repr__(self):
-        return f'RAM: {self.ram} \n {self.reg}'
+        return f'RAM: {self.ram} \n Register: {self.reg}'
 
     def ram_read(self, address):
         return self.ram[address]
@@ -45,24 +45,31 @@ class CPU:
 
     def load(self):
         """Load a program into memory."""
+        try:
+            address = 0
 
-        address = 0
+            with open(program) as f:
+                for line in f:
+                    comment_split = line.split("#")
 
-        # For now, we've just hardcoded a program:
+                    number = comment_split[0].strip()
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
+                    if number == "":
+                        continue
+                    
+                    value = int(number, 2)
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+                    self.ram_write(value, address)
+
+                    address += 1
+
+        except FileNotFoundError:
+            print(f"{program} not found")
+            sys.exit(2)
+        
+        if len(sys.argv) != 2:
+            print(f"Please format the command like so: \n python3 ls8.py <filename>", file=sys.stderr)
+            sys.exit(1)
 
         print(self.ram)
 
@@ -127,9 +134,3 @@ class CPU:
                 sys.exit(1)
             
             self.PC += 1
-
-
-test = CPU()
-print(test.load())
-print(f"\n")
-print(test.run())
