@@ -21,15 +21,11 @@ class CPU:
 
         # Store the Program Counter
         self.PC = self.reg[0]
-        # Store the Instruction Register
-        # self.IR = self.reg[1]
-        # Store the Memory Address Register
-        # self.MAR = self.reg[2]
-        # Store the Memory Data Register
-        # self.MDR = self.reg[3]
-        # Store the Flags
-        # self.FL = self.reg[4]
 
+        # Instruction Register: self.reg[1]
+        # Memory Address Register: self.reg[2]
+        # Memory Data Register: self.reg[3]
+        # Flags: self.reg[4]
         # self.reg[5] Reserved: Interrupt Mask
         # self.reg[6] Reserved: Interrupt Status
         # self.reg[7] Reserved: Stack Pointer
@@ -43,8 +39,13 @@ class CPU:
 
     def ram_write(self, value, address):
         self.ram[address] = value
+    
+    def mul(self, operand_a, operand_b):
+        # Multiply two values and store in first register
+        self.alu("MUL", operand_a, operand_b)
+        return (3, True)
 
-    def load(self):
+    def load(self, program):
         """Load a program into memory."""
         try:
             address = 0
@@ -65,14 +66,12 @@ class CPU:
                     address += 1
 
         except FileNotFoundError:
-            print(f"{program} not found")
+            print(f'{program} not found')
             sys.exit(2)
         
         if len(sys.argv) != 2:
-            print(f"Please format the command like so: \n python3 ls8.py <filename>", file=sys.stderr)
+            print(f'Please format the command like so: \n python3 ls8.py <filename>', file=sys.stderr)
             sys.exit(1)
-
-        print(self.ram)
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -92,7 +91,7 @@ class CPU:
         from run() if you need help debugging.
         """
 
-        print(f"TRACE: %02X | %02X %02X %02X |" % (
+        print(f''TRACE: %02X | %02X %02X %02X |' % (
             self.pc,
             #self.fl,
             #self.ie,
@@ -102,7 +101,7 @@ class CPU:
         ), end='')
 
         for i in range(8):
-            print(" %02X" % self.reg[i], end='')
+            print(' %02X' % self.reg[i], end='')
 
         print()
 
