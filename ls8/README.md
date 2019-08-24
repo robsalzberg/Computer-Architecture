@@ -94,7 +94,13 @@ TODO:
 
 ### Day 2 List:
 
-TODO: To be completed on Friday
+Un-hardcode the program in cpu.py and ls8.py so the program can be specified in the command line
+
+Implement the load() function to load an .ls8 file given the filename
+passed in as an argument
+
+Implement a Multiply instruction (run mult8.ls8) under the alu() built in class method that will multiply two values (at different registers), and stores the result in register A.
+It expects two address parameters.
 
 ## Step 1: Add the constructor to `cpu.py`
 
