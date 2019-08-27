@@ -21,7 +21,7 @@ class CPU:
         self.reg = [0] * 8
 
         # Store the Program Counter
-        self.PC = 0
+        self.pc = 0
         self.hlt = False
 
         self.inst = {
@@ -49,7 +49,7 @@ class CPU:
     def PRN(self, address, operand_b):
         print(self.reg[address])
 
-    def load(self, program):
+    def load(self, filename):
         """Load a program into memory."""
         address = 0
 
@@ -73,7 +73,7 @@ class CPU:
             self.reg[reg_a] += self.reg[reg_b]
 
         elif op == "MUL":
-            self.reg[reg_a] += self.reg[reg_b]
+            self.reg[reg_a] *= self.reg[reg_b]
 
         else:
             raise Exception("Unsupported ALU operation")
