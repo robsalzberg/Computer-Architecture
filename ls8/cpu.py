@@ -2,10 +2,10 @@
 
 import sys
 
-HLT = 0b00000001
-LDI = 0b10000010
-PRN = 0b01000111
-MUL = 0b10100010
+# HLT = 0b00000001
+# LDI = 0b10000010
+# PRN = 0b01000111
+# MUL = 0b10100010
 
 class CPU:
     """Main CPU class."""
@@ -20,58 +20,34 @@ class CPU:
         self.reg = [0] * 8
 
         # Store the Program Counter
-        self.PC = self.reg[0]
+        self.PC = 0
 
-        # Instruction Register: self.reg[1]
-        # Memory Address Register: self.reg[2]
-        # Memory Data Register: self.reg[3]
-        # Flags: self.reg[4]
-        # self.reg[5] Reserved: Interrupt Mask
-        # self.reg[6] Reserved: Interrupt Status
-        # self.reg[7] Reserved: Stack Pointer
-        # self.reg[8] Unassigned
+    def ram_read(self, MAR):
+        return self.ram[MAR]
 
-    def __repr__(self):
-        return f'RAM: {self.ram} \n Register: {self.reg}'
-
-    def ram_read(self, address):
-        return self.ram[address]
-
-    def ram_write(self, value, address):
-        self.ram[address] = value
-    
-    def mul(self, operand_a, operand_b):
-        # Multiply two values and store in first register
-        self.alu("MUL", operand_a, operand_b)
-        return (3, True)
+    def ram_write(self, MAR, MDR):
+        self.ram[MAR] = MDR
 
     def load(self, program):
         """Load a program into memory."""
+        address = 0
+
         try:
-            address = 0
-
-            with open(program) as f:
+            # open the program specified by the second command line argument
+            with open(sys.argv[1]) as f:
+                # for each line in the file
                 for line in f:
-                    comment_split = line.split("#")
-
-                    number = comment_split[0].strip()
-
-                    if number == "":
-                        continue
-                    
-                    value = int(number, 2)
-
-                    self.ram_write(value, address)
-
-                    address += 1
-
-        except FileNotFoundError:
-            print(f'{program} not found')
-            sys.exit(2)
-        
-        if len(sys.argv) != 2:
-            print(f'Please format the command like so: \n python3 ls8.py <filename>', file=sys.stderr)
-            sys.exit(1)
+                    # check if it starts with a binary number
+                    if line[0].startswith('0') or line[0].startswith('1'):
+                        # only use the first (non-commented) part of the instruction
+                        binary = line.split("#")[0]
+                        # remove any white space
+                        binary = binary.strip()
+                        # convert to binary and store it in RAM
+                        self.ram[address] = int(binary, 2)
+                        address += 1
+        except:
+            print(f"{sys.argv[0]}: {sys.argv[1]} not found.")
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -79,8 +55,7 @@ class CPU:
             self.reg[reg_a] += self.reg[reg_b]
 
         elif op == "MUL":
-            self.reg[reg_a] = (self.reg[reg_a]) * (self.reg[reg_b])
-            return 2
+            self.reg[reg_a] += self.reg[reg_b]
 
         else:
             raise Exception("Unsupported ALU operation")
@@ -91,7 +66,7 @@ class CPU:
         from run() if you need help debugging.
         """
 
-        print(f''TRACE: %02X | %02X %02X %02X |' % (
+        print(f'TRACE: %02X | %02X %02X %02X |' % (
             self.pc,
             #self.fl,
             #self.ie,
@@ -107,36 +82,36 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
+        HLT = 0b00000001
+        LDI = 0b10000010
+        PRN = 0b01000111
+        MUL = 0b10100010
+
         running = True
 
         while running:
-            IR = self.ram[self.PC]
+            # It needs to read the memory address that's stored in register `PC`, and store
+            # that result in `IR`, the _Instruction Register_. This can just be a local
+            # variable in `run()`.
+            IR = self.ram[self.pc]
 
-            operand_a = self.ram_read(self.PC + 1)
-            operand_b = self.ram_read(self.PC + 2)
+            # Using `ram_read()`,read the bytes at `PC+1` and `PC+2` from RAM into variables
+            # `operand_a` and `operand_b` in case the instruction needs them.
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
 
-            # print(f"Operand A: {operand_a} Operand B: {operand_b}")
-            # print(f"Register: {self.reg}")
-
+            # Then, depending on the value of the opcode, perform the actions needed for the
+            # instruction per the LS-8 spec.
             if IR == HLT:
-                # halt the program
                 running = False
-
             elif IR == LDI:
-                # sets register to a value
                 self.reg[operand_a] = operand_b
-                self.PC += 2
-
+                self.pc += 3
             elif IR == PRN:
-                # print the value at a register
                 print(self.reg[operand_a])
-                self.PC += 1
-
+                self.pc += 2
             elif IR == MUL:
-                self.PC += self.alu("MUL", operand_a, operand_b)
-
+                self.alu("MUL", operand_a, operand_b)
+                self.pc += 3
             else:
-                print(f"Unknown command: {IR}")
-                sys.exit(1)
-            
-            self.PC += 1
+                print("Unknown instruction.")
