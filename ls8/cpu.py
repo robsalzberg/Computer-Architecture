@@ -6,6 +6,8 @@ HLT = 0b00000001
 LDI = 0b10000010
 PRN = 0b01000111
 MUL = 0b10100010
+POP = 0b01000110
+PUSH = 0b01000101
 
 
 class CPU:
@@ -24,11 +26,21 @@ class CPU:
         self.pc = 0
         self.hlt = False
 
+        # Store a Flag
+        self.FL = self.reg[4]
+
+        # Store a Stack Pointer
+        self.SP = self.reg[7]
+        # Stack runs from 244 - 255?
+        self.SP = 244
+
         self.inst = {
             HLT: self.HLT,
             LDI: self.LDI,
             MUL: self.MUL,
-            PRN: self.PRN
+            PRN: self.PRN,
+            POP: self.POP,
+            PUSH: self.PUSH
         }
 
     def ram_read(self, address):
@@ -49,6 +61,26 @@ class CPU:
     def PRN(self, address, operand_b):
         print(self.reg[address])
 
+    def POP(self, operand_a, operand_b):
+        # Gets value from memory at Stack Pointer
+        value = self.ram_read(self.SP)
+        # Write that value to indicated spot in Register
+        self.reg[operand_a] = value
+        # Increments Stack Pointer to next filled spot in Stack memory
+        self.SP += 1
+
+        return (2, True)
+
+    def PUSH(self, operand_a, operand_b):
+        # Decrements SP to next open spot in Stack memory
+        self.SP -= 1
+        # Grabs value from indicated register spot
+        value = self.reg[operand_a]
+        # Writes value to RAM at Stack Pointer address
+        self.ram_write(value, self.SP)
+
+        return (2, True)
+    
     def load(self, filename):
         """Load a program into memory."""
         address = 0
