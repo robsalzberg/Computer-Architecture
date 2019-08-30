@@ -8,7 +8,8 @@ PRN = 0b01000111
 MUL = 0b10100010
 POP = 0b01000110
 PUSH = 0b01000101
-
+RET = 0b00010001
+CALL = 0b01010000
 
 class CPU:
     """Main CPU class."""
@@ -40,7 +41,9 @@ class CPU:
             MUL: self.MUL,
             PRN: self.PRN,
             POP: self.POP,
-            PUSH: self.PUSH
+            PUSH: self.PUSH,
+            RET: self.RET,
+            CALL: self.CALL
         }
 
     def ram_read(self, address):
