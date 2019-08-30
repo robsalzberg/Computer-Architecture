@@ -10,6 +10,7 @@ POP = 0b01000110
 PUSH = 0b01000101
 RET = 0b00010001
 CALL = 0b01010000
+ADD = 0b10100000
 
 class CPU:
     """Main CPU class."""
@@ -41,9 +42,7 @@ class CPU:
             MUL: self.MUL,
             PRN: self.PRN,
             POP: self.POP,
-            PUSH: self.PUSH,
-            RET: self.RET,
-            CALL: self.CALL
+            PUSH: self.PUSH
         }
 
     def ram_read(self, address):
@@ -83,7 +82,27 @@ class CPU:
         self.ram_write(value, self.SP)
 
         return (2, True)
-    
+
+    def CALL(self, operand_a, operand_b):
+        return_address = self.pc + 2
+        self.SP -= 1
+        self.ram_write(return_address, self.SP)
+        subroutine_address = self.reg[operand_a]
+        self.pc = subroutine_address
+
+        return (2, True)
+
+    def RET(self, operand_a, operand_b):
+        self.ram_write(self.SP, return_address)
+        self.SP += 1
+        self.pc = return_address
+
+        return (2, True)
+
+    def handle_ADD(self, a, b):
+        self.alu('ADD', a, b)
+        self.pc += 3
+
     def load(self, filename):
         """Load a program into memory."""
         address = 0
