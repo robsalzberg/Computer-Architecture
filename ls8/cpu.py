@@ -8,8 +8,8 @@ PRN = 0b01000111
 MUL = 0b10100010
 POP = 0b01000110
 PUSH = 0b01000101
-RET = 0b00010001
 CALL = 0b01010000
+RET = 0b00010001
 ADD = 0b10100000
 
 class CPU:
@@ -28,13 +28,9 @@ class CPU:
         self.pc = 0
         self.hlt = False
 
-        # Store a Flag
-        self.FL = self.reg[4]
-
-        # Store a Stack Pointer
-        self.SP = self.reg[7]
-        # Stack runs from 244 - 255?
-        self.SP = 244
+        self.reg[7] = 0xF3  # stack pointer
+        self.SP = 7
+        self.previous = None
 
         self.inst = {
             HLT: self.HLT,
@@ -42,7 +38,10 @@ class CPU:
             MUL: self.MUL,
             PRN: self.PRN,
             POP: self.POP,
-            PUSH: self.PUSH
+            PUSH: self.PUSH,
+            CALL: self.CALL,
+            RET: self.RET,
+            ADD: self.ADD
         }
 
     def ram_read(self, address):
@@ -64,44 +63,24 @@ class CPU:
         print(self.reg[address])
 
     def POP(self, operand_a, operand_b):
-        # Gets value from memory at Stack Pointer
-        value = self.ram_read(self.SP)
-        # Write that value to indicated spot in Register
-        self.reg[operand_a] = value
-        # Increments Stack Pointer to next filled spot in Stack memory
-        self.SP += 1
-
-        return (2, True)
+        self.reg[operand_a] = self.ram[self.reg[self.SP]]
+        self.ram[self.reg[self.SP]] = 0
+        self.reg[self.SP] += 1
 
     def PUSH(self, operand_a, operand_b):
-        # Decrements SP to next open spot in Stack memory
-        self.SP -= 1
-        # Grabs value from indicated register spot
-        value = self.reg[operand_a]
-        # Writes value to RAM at Stack Pointer address
-        self.ram_write(value, self.SP)
-
-        return (2, True)
+        self.reg[self.SP] -= 1
+        self.ram[self.reg[self.SP]] = self.reg[operand_a]
 
     def CALL(self, operand_a, operand_b):
-        return_address = self.pc + 2
-        self.SP -= 1
-        self.ram_write(return_address, self.SP)
-        subroutine_address = self.reg[operand_a]
-        self.pc = subroutine_address
+        self.previous = self.pc + 2
+        self.pc = self.reg[operand_a]
 
-        return (2, True)
+    def RET(self, operand_a, operand_b):    
+        self.pc = self.previous
+        self.prevous = None
 
-    def RET(self, operand_a, operand_b):
-        self.ram_write(self.SP, return_address)
-        self.SP += 1
-        self.pc = return_address
-
-        return (2, True)
-
-    def handle_ADD(self, a, b):
-        self.alu('ADD', a, b)
-        self.pc += 3
+    def ADD(self, operand_a, operand_b):
+        self.alu("ADD", operand_a, operand_b)
 
     def load(self, filename):
         """Load a program into memory."""
