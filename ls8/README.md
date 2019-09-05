@@ -65,6 +65,43 @@ but you'll have to implement those three above instructions first!
 * Read this whole file.
 * Skim the spec.
 
+### Day 1  List:
+
+README.md: A markdown file with the steps to complete the project
+
+cpu.py: Provides the CPU functionality
+
+Completed:
+
+    `load()` : Loads a program into memory, currently hard coded.
+
+    `alu()`  : Handles ALU operations
+
+    `trace()` : Prints the CPU state
+
+TODO: 
+
+    `_init_()` : Construct a CPU with `self.ram`, `self.pc` and `self.reg` properties.  Add
+    method `ram_read()` and `ram_write()` that access the RAM inside the `CPU` object.
+
+    `run()`: Runs the CPU
+
+    Implement the `HLT` instruction handler
+
+    Add the `LDI` instruction
+
+    Add the `PRN` instruction
+
+### Day 2 List:
+
+Un-hardcode the program in cpu.py and ls8.py so the program can be specified in the command line
+
+Implement the load() function to load an .ls8 file given the filename
+passed in as an argument
+
+Implement a Multiply instruction (run mult8.ls8) under the alu() built in class method that will multiply two values (at different registers), and stores the result in register A.
+It expects two address parameters.
+
 ## Step 1: Add the constructor to `cpu.py`
 
 Add list properties to the `CPU` class to hold 256 bytes of memory and 8
